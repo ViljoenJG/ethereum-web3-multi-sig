@@ -17,6 +17,7 @@ var MyWallet = contract(myWallet_artifact);
 // For application bootstrapping, check out window.addEventListener below.
 var accounts;
 var mainAccount;
+var outstandingProposals = [];
 var elements = {};
 
 window.App = {
@@ -40,6 +41,7 @@ window.App = {
             mainAccount = accounts[0];
 
             App.basicInfoUpdate();
+            App.listenToEvents();
         });
     },
 
@@ -79,6 +81,22 @@ window.App = {
         });
     },
 
+    listenToEvents() {
+        MyWallet.deployed().then(function (instance) {
+            instance.proposalReceived({}, {fromBlock:0, toBlock:'latest'}).watch(function(err, event) {
+                console.log(event);
+            });
+
+            instance.receivedFunds({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
+                console.log(event)
+            })
+
+            instance.defaultSend({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
+                console.log(event)
+            })
+        })
+    },
+
     sendProposal() {
         var from = elements.fromAddress.value || mainAccount;
         var to = elements.toAccount.value;
@@ -86,12 +104,13 @@ window.App = {
         var value = web3.toWei(parseInt(elements.value.value, 10), 'ether');
 
         MyWallet.deployed().then(function (instance) {
-            return instance.spendMoney(to, value, reason, { from });
+            return instance.spendMoney(to, value, reason, { from: from, gas: 500000 });
         }).then(function (resp) {
             console.log(resp);
         }).catch(function (err) {
             console.error(err);
         })
+        return false;
     }
 };
 

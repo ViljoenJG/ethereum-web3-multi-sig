@@ -4,7 +4,8 @@ import "./mortal.sol";
 
 contract MyWallet is mortal {
     event receivedFunds(address indexed _from, uint256 _amount);
-    event proposalReceived(address indexed _from, address indexed _to, string _reason);
+    event proposalReceived(address indexed _from, address indexed _to, string _reason, uint _counter);
+    event defaultSend(address indexed _to, string _reason, uint256 _value);
 
     struct Proposal {
         address _from;
@@ -20,10 +21,11 @@ contract MyWallet is mortal {
     function spendMoney(address _to, uint256 _value, string _reason) returns(uint256) {
         if (owner == msg.sender) {
             _to.transfer(_value);
+            defaultSend(_to, _reason, _value);
         } else {
             proposal_counter++;
             m_proposals[proposal_counter] = Proposal(msg.sender, _to, _value, _reason, false);
-            proposalReceived(msg.sender, _to, _reason);
+            proposalReceived(msg.sender, _to, _reason, proposal_counter);
             return proposal_counter;
         }
     }
@@ -40,5 +42,9 @@ contract MyWallet is mortal {
         return false;
     }
 
-    function() payable {}
+    function() payable {
+        if(msg.value > 0) {
+            receivedFunds(msg.sender, msg.value);
+        }
+    }
 }

@@ -18,7 +18,7 @@
             </div>
             <button class="btn btn-primary" onclick="App.submitEtherToWallet()">Top up wallet</button>
             <hr>
-            <form onsubmit="App.sendProposal()">
+            <form>
                 <h3>Submit spend proposal</h3>
                 <div class="form-group">
                     <label class="control-label" for="toAccount">To Account</label>
@@ -44,9 +44,17 @@
                            placeholder="Because I like it">
                 </div>
 
-                <button class="btn btn-primary">Submit proposal</button>
+                <button type="button" onclick="App.sendProposal()" class="btn btn-primary">Submit proposal</button>
             </form>
             <hr>
+            <!--<form>-->
+                <!--<h3>Approve Proposal</h3>-->
+                <!--<div class="form-group">-->
+
+                <!--</div>-->
+            <!--</form>-->
+            <hr>
+            <h2>Account List</h2>
             <ul id="allAccounts"></ul>
         </div>
     </div>
