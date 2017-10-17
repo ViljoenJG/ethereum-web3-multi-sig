@@ -40,8 +40,8 @@ window.App = {
             accounts = accs;
             mainAccount = accounts[0];
 
-            App.basicInfoUpdate();
             App.listenToEvents();
+            App.basicInfoUpdate();
         });
     },
 
@@ -81,20 +81,8 @@ window.App = {
         });
     },
 
-    listenToEvents() {
-        MyWallet.deployed().then(function (instance) {
-            instance.proposalReceived({}, {fromBlock:0, toBlock:'latest'}).watch(function(err, event) {
-                console.log(event);
-            });
-
-            instance.receivedFunds({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
-                console.log(event)
-            })
-
-            instance.defaultSend({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
-                console.log(event)
-            })
-        })
+    confirmProposal() {
+        // Logic still outstanding
     },
 
     sendProposal() {
@@ -111,7 +99,34 @@ window.App = {
             console.error(err);
         })
         return false;
-    }
+    },
+
+    listenToEvents() {
+        MyWallet.deployed().then(function (instance) {
+            instance.proposalReceived({}, {fromBlock:0, toBlock:'latest'}).watch(function(err, event) {
+                var id = event.args._counter.toString(10);
+                instance.getProposalDetails(parseInt(id, 10)).then(function (data) {
+                    var proposal = new Proposal(data);
+                    if (!proposal.sent) {
+                        console.log(proposal);
+                        outstandingProposals.push(proposal);
+                        var option = document.createElement('option');
+                        option.value = proposal.id;
+                        option.innerHTML = `To: ${proposal.to}, value: ${ web3.fromWei(proposal.value, 'ether') } ether`;
+                        elements.outstanding.appendChild(option)
+                    }
+                })
+            });
+
+            instance.receivedFunds({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
+                console.log(event)
+            });
+
+            instance.defaultSend({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
+                console.log(event)
+            });
+        })
+    },
 };
 
 window.addEventListener('load', function () {
@@ -133,11 +148,26 @@ window.addEventListener('load', function () {
     elements.value = document.getElementById('value');
     elements.walletAddress = document.getElementById('walletAddress');
     elements.walletEther = document.getElementById('walletEther');
-    elements.allAccounts = document.getElementById('allAccounts')
+    elements.allAccounts = document.getElementById('allAccounts');
+    elements.outstanding = document.getElementById('outstanding');
 
     App.start();
 });
 
+function Proposal(dataArr) {
+    if (!dataArr) {
+        dataArr = [];
+    }
+
+    var idx = 0;
+
+    this.from = dataArr[idx++];
+    this.to = dataArr[idx++];
+    this.reason = dataArr[idx++];
+    this.value = parseInt(dataArr[idx++].toString(10));
+    this.sent = dataArr[idx++];
+    this.id = parseInt(dataArr[idx++].toString(10));
+}
 
 function getAccountBalance(address) {
     return web3.fromWei(web3.eth.getBalance(address).toNumber(), 'ether')

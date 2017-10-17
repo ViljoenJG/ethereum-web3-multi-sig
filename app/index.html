@@ -7,8 +7,8 @@
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
+    <div class="col-sm-8 col-sm-offset-2">
+        <div class="row">
             <h1>Multi Signature Wallet</h1><br>
             <h3>Wallet address: <span id="walletAddress"></span> <br>Balance: <span id="walletEther"></span> Ether</h3>
             <div class="form-group">
@@ -16,8 +16,12 @@
                 <input class="form-control" id="fromAddr" name="fromAddr" list="addressList">
                 <datalist id="addressList"></datalist>
             </div>
+
             <button class="btn btn-primary" onclick="App.submitEtherToWallet()">Top up wallet</button>
-            <hr>
+        </div>
+        <hr>
+
+        <div class="row">
             <form>
                 <h3>Submit spend proposal</h3>
                 <div class="form-group">
@@ -44,16 +48,31 @@
                            placeholder="Because I like it">
                 </div>
 
-                <button type="button" onclick="App.sendProposal()" class="btn btn-primary">Submit proposal</button>
+                <button type="button" onclick="App.sendProposal()" class="btn btn-primary">
+                    Submit proposal
+                </button>
             </form>
-            <hr>
-            <!--<form>-->
-                <!--<h3>Approve Proposal</h3>-->
-                <!--<div class="form-group">-->
+        </div>
+        <hr>
 
-                <!--</div>-->
-            <!--</form>-->
-            <hr>
+        <div class="row">
+            <form>
+                <h3>Approve Proposal</h3>
+                <div class="form-group">
+                    <label for="outstanding" class="control-label">Reason</label>
+                    <select class="form-control" name="outstanding" id="outstanding">
+                        <option value="null"></option>
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="App.confirmProposal()">
+                    Approve
+                </button>
+            </form>
+        </div>
+        <hr>
+
+        <div class="row">
             <h2>Account List</h2>
             <ul id="allAccounts"></ul>
         </div>

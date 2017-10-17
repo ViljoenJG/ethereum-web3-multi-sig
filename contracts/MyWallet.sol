@@ -42,6 +42,11 @@ contract MyWallet is mortal {
         return false;
     }
 
+    function getProposalDetails(uint proposal_id) constant public returns(address, address, string, uint256, bool, uint) {
+        Proposal prop = m_proposals[proposal_id];
+        return (prop._from, prop._to, prop._reason, prop._value, prop._sent, proposal_id);
+    }
+
     function() payable {
         if(msg.value > 0) {
             receivedFunds(msg.sender, msg.value);
