@@ -17,10 +17,11 @@ var MyWallet = contract(myWallet_artifact);
 // For application bootstrapping, check out window.addEventListener below.
 var accounts;
 var mainAccount;
+var elements = {};
 
 window.App = {
     start() {
-        // Bootstrap the MetaCoin abstraction for Use.
+        // Bootstrap the web3 abstraction for Use.
         MyWallet.setProvider(web3.currentProvider);
 
         // Get the initial account balance so it can be displayed.
@@ -44,24 +45,21 @@ window.App = {
 
     basicInfoUpdate() {
         MyWallet.deployed().then(function (instance) {
-            document.getElementById("walletAddress").innerHTML = instance.address;
-            document.getElementById("walletEther").innerHTML =
-                web3.fromWei(web3.eth.getBalance(instance.address).toNumber(), 'ether');
+            elements.walletAddress.innerHTML = instance.address;
+            elements.walletEther.innerHTML = getAccountBalance(instance.address);
         });
 
-        var addressList = document.getElementById("addressList");
-        addressList.innerHTML = '';
+        elements.addressList.innerHTML = '';
         accounts.forEach((account) => {
             var option = document.createElement('option');
             option.value = account;
-            option.innerHTML = `(${web3.fromWei(web3.eth.getBalance(account).toNumber(), 'ether')})`;
-            addressList.appendChild(option);
+            option.innerHTML = `(${ getAccountBalance(account) })`;
+            elements.addressList.appendChild(option);
         });
     },
 
     submitEtherToWallet() {
-        var selectedAddress = document.getElementById('fromAddr');
-        var fromAcc = selectedAddress.value || mainAccount;
+        var fromAcc = elements.fromAddress.value || mainAccount;
 
         MyWallet.deployed().then(function (instance) {
             return instance.sendTransaction({
@@ -72,6 +70,9 @@ window.App = {
         }).then(function (result) {
             App.basicInfoUpdate();
         });
+    },
+
+    sendProposal() {
     }
 };
 
@@ -87,5 +88,18 @@ window.addEventListener('load', function () {
         window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
 
+    elements.addressList= document.getElementById("addressList");
+    elements.fromAddress = document.getElementById('fromAddr');
+    elements.toAddress = document.getElementById('toAddr');
+    elements.sendReason = document.getElementById('reason');
+    elements.value = document.getElementById('value');
+    elements.walletAddress = document.getElementById("walletAddress");
+    elements.walletEther = document.getElementById("walletEther");
+
     App.start();
 });
+
+
+function getAccountBalance(address) {
+    return web3.fromWei(web3.eth.getBalance(address).toNumber(), 'ether')
+}
