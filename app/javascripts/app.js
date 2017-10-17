@@ -21,7 +21,7 @@ var elements = {};
 
 window.App = {
     start() {
-        // Bootstrap the web3 abstraction for Use.
+        // Bootstrap the MyWallet abstraction for Use.
         MyWallet.setProvider(web3.currentProvider);
 
         // Get the initial account balance so it can be displayed.
@@ -50,11 +50,18 @@ window.App = {
         });
 
         elements.addressList.innerHTML = '';
+        elements.allAccounts.innerHTML ='';
+
         accounts.forEach((account) => {
+            var accountBalance = getAccountBalance(account);
             var option = document.createElement('option');
             option.value = account;
-            option.innerHTML = `(${ getAccountBalance(account) })`;
+            option.innerHTML = `(${ accountBalance })`;
             elements.addressList.appendChild(option);
+
+            var li = document.createElement('li');
+            li.innerHTML = `${ account } <strong>(${ accountBalance } Ether)</strong>`;
+            elements.allAccounts.appendChild(li)
         });
     },
 
@@ -73,6 +80,18 @@ window.App = {
     },
 
     sendProposal() {
+        var from = elements.fromAddress.value || mainAccount;
+        var to = elements.toAccount.value;
+        var reason = elements.sendReason.value;
+        var value = web3.toWei(parseInt(elements.value.value, 10), 'ether');
+
+        MyWallet.deployed().then(function (instance) {
+            return instance.spendMoney(to, value, reason, { from });
+        }).then(function (resp) {
+            console.log(resp);
+        }).catch(function (err) {
+            console.error(err);
+        })
     }
 };
 
@@ -88,13 +107,14 @@ window.addEventListener('load', function () {
         window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
 
-    elements.addressList= document.getElementById("addressList");
+    elements.addressList= document.getElementById('addressList');
     elements.fromAddress = document.getElementById('fromAddr');
-    elements.toAddress = document.getElementById('toAddr');
+    elements.toAccount = document.getElementById('toAccount');
     elements.sendReason = document.getElementById('reason');
     elements.value = document.getElementById('value');
-    elements.walletAddress = document.getElementById("walletAddress");
-    elements.walletEther = document.getElementById("walletEther");
+    elements.walletAddress = document.getElementById('walletAddress');
+    elements.walletEther = document.getElementById('walletEther');
+    elements.allAccounts = document.getElementById('allAccounts')
 
     App.start();
 });
