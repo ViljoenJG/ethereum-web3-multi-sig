@@ -1,18 +1,17 @@
-# truffle-init-webpack
-Example webpack project with Truffle. Includes contracts, migrations, tests, user interface and webpack build pipeline.
+# Ethereum multi signature wallet
+Playground project to play with Ethereum development
 
 ## Usage
+It is advisable to run this on a test network, private blockchain or testrpc because I am confident this does not comply to the required standards for a multiple signature wallet. It serves only for me to play around with development of dapps or smart contracts
 
-To initialize a project with this example, run `truffle init webpack` inside an empty directory.
+## Requirements
+1. Some Ethereum Blockchain (testrpc, geth)
+1. Truffle framework `npm i -g truffle`
 
 ## Building and the frontend
 
 1. First run `truffle compile`, then run `truffle migrate` to deploy the contracts onto your network of choice (default "development").
 1. Then run `npm run dev` to build the app and serve it on http://localhost:8080
-
-## Possible upgrades
-
-* Use the webpack hotloader to sense when contracts or javascript have been recompiled and rebuild the application. Contributions welcome!
 
 ## Common Errors
 
