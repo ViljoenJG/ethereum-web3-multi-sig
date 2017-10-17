@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MetaCoin - Truffle Webpack Demo w/ Frontend</title>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script src="./app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-sm-offset-2">
+        <h1>Multi Signature Wallet</h1><br>
+        <h3>Wallet address: <span id="walletAddress"></span> <br>Balance: <span id="walletEther"></span> Ether</h3>
+      <div class="form-group">
+          <label class="control-label" for="fromAddr">From</label>
+          <input class="form-control" id="fromAddr" name="fromAddr" list="addressList">
+          <datalist id="addressList"></datalist>
+      </div>
+        <button class="btn btn-primary" onclick="App.submitEtherToWallet()">Top up wallet</button>
+        <hr>
+          <form onsubmit="App.submitTransaction()">
+              <h3>Submit spend proposal</h3>
+              <div class="form-group">
+                  <label class="control-label" for="toAddress">To Account</label>
+                  <input class="form-control"
+                         id="toAddress"
+                         list="addressList"
+                         placeholder="0xDEADBEEF">
+              </div>
+              <div class="form-group">
+                  <label for="value" class="control-label">value (in ether)</label>
+                  <input id="value"
+                         class="form-control"
+                         type="number"
+                         placeholder="123">
+              </div>
+              <div class="form-group">
+                  <label for="reason" class="control-label">Reason</label>
+                  <input id="reason"
+                         class="form-control" placeholder="Because I like it">
+              </div>
+
+              <button class="btn btn-primary">Submit proposal</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
