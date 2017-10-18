@@ -5,6 +5,7 @@ import "./mortal.sol";
 contract MyWallet is mortal {
     event receivedFunds(address indexed _from, uint256 _amount);
     event proposalReceived(address indexed _from, address indexed _to, string _reason, uint _counter);
+    event proposalConfirmed(uint _proposal_id);
     event defaultSend(address indexed _to, string _reason, uint256 _value);
 
     struct Proposal {
@@ -37,6 +38,7 @@ contract MyWallet is mortal {
         if (proposal._sent != true) {
             proposal._sent = true;
             proposal._to.transfer(proposal._value);
+            proposalConfirmed(proposal_id);
             return true;
         }
         return false;

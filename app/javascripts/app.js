@@ -17,7 +17,7 @@ var MyWallet = contract(myWallet_artifact);
 // For application bootstrapping, check out window.addEventListener below.
 var accounts;
 var mainAccount;
-var outstandingProposals = [];
+var confirmedProposals = [];
 var elements = {};
 
 window.App = {
@@ -74,7 +74,7 @@ window.App = {
             return instance.sendTransaction({
                 from: fromAcc,
                 to: instance.address,
-                value: web3.toWei(5, 'ether')
+                value: web3.toWei(20, 'ether')
             });
         }).then(function (result) {
             App.basicInfoUpdate();
@@ -82,7 +82,19 @@ window.App = {
     },
 
     confirmProposal() {
-        // Logic still outstanding
+        var selectedProposal = elements.outstanding.value;
+
+        if (selectedProposal === 'null') {
+            return alert('You need to select a proposal')
+        }
+
+        MyWallet.deployed().then(function (instance) {
+            return instance.confirmProposal(parseInt(selectedProposal, 10), { from: mainAccount });
+        }).then(function() {
+            App.reloadProposals();
+        }).catch(function(err) {
+            console.error(err);
+        });
     },
 
     sendProposal() {
@@ -94,10 +106,14 @@ window.App = {
         MyWallet.deployed().then(function (instance) {
             return instance.spendMoney(to, value, reason, { from: from, gas: 500000 });
         }).then(function (resp) {
+            elements.toAccount.value = '';
+            elements.value.value = null;
+            elements.sendReason.value = '';
             console.log(resp);
         }).catch(function (err) {
             console.error(err);
-        })
+        });
+
         return false;
     },
 
@@ -108,17 +124,22 @@ window.App = {
                 instance.getProposalDetails(parseInt(id, 10)).then(function (data) {
                     var proposal = new Proposal(data);
                     if (!proposal.sent) {
-                        console.log(proposal);
-                        outstandingProposals.push(proposal);
                         var option = document.createElement('option');
                         option.value = proposal.id;
+                        option.id = `proposal_${ proposal.id }`;
                         option.innerHTML = `To: ${proposal.to}, value: ${ web3.fromWei(proposal.value, 'ether') } ether`;
-                        elements.outstanding.appendChild(option)
+                        elements.outstanding.appendChild(option);
                     }
                 })
             });
 
-            instance.receivedFunds({}, {fromBlock:0, toBlock:'latest'}).watch(function (err, event) {
+            instance.proposalConfirmed({}, { fromBlock: 0, toBlock: 'latest' }).watch(function (err, event) {
+                var id = parseInt(event.args._proposal_id.toString(10));
+                confirmedProposals.push(id);
+                App.reloadProposals();
+            });
+
+            instance.receivedFunds({}, { fromBlock:0, toBlock:'latest' }).watch(function (err, event) {
                 console.log(event)
             });
 
@@ -127,6 +148,15 @@ window.App = {
             });
         })
     },
+
+    reloadProposals() {
+        confirmedProposals.forEach((id) => {
+            var option = document.getElementById(`proposal_${ id }`);
+            if (option) {
+                elements.outstanding.removeChild(option);
+            }
+        })
+    }
 };
 
 window.addEventListener('load', function () {
