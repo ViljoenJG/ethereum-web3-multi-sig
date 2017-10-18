@@ -91,6 +91,7 @@ window.App = {
         MyWallet.deployed().then(function (instance) {
             return instance.confirmProposal(parseInt(selectedProposal, 10), { from: mainAccount });
         }).then(function() {
+            elements.outstanding.value = 'null';
             App.reloadProposals();
         }).catch(function(err) {
             console.error(err);
